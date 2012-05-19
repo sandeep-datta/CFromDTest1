@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#make sure the linux shared library loader is able to find our library.
+export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+
+#build libtest.so first
+gcc -fpic -g -c test.c
+gcc -shared test.o -o libtest.so
+
+#generate asm file for inspection
+objdump -d -M intel libtest.so > test.asm
+
+#next build main.c
+gcc -g main.c -L. -ltest -o mainc
+
+#generate asm file for inspection
+objdump -d -M intel mainc > mainc.asm
+
+#next build main.d
+dmd -g -c main.d
+gcc main.o -L. -ltest -lphobos2 -lrt -o maind
+
+#generate asm file for inspection
+objdump -d -M intel maind > maind.asm
